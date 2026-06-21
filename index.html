@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洛谷题解站</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{max-width:1100px;margin:0 auto;padding:20px;font-family:system-ui}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #eee}
+.box{border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:15px 0}
+input,textarea,select{width:100%;padding:8px 10px;margin:6px 0;border:1px solid #ddd;border-radius:4px}
+button{padding:8px 14px;margin:4px;cursor:pointer;background:#409eff;color:#fff;border:none;border-radius:4px}
+button.gray{background:#999}
+.solution-item{margin:12px 0;padding:14px;border:1px solid #eee;border-radius:6px}
+.tag{display:inline-block;background:#eef4ff;padding:3px 8px;border-radius:12px;font-size:13px;margin:2px}
+.hide{display:none}
+.markdown-body pre{background:#f6f8fa;padding:10px;overflow:auto;border-radius:4px}
+.markdown-body code{background:#f6f8fa;padding:2px 4px;border-radius:3px}
+</style>
+</head>
+<body>
+<header>
+<h1>洛谷题解站</h1>
+<div id="userBar">
+<button onclick="showLogin()">登录</button>
+<button onclick="showReg()">注册</button>
+</div>
+</header>
+
+<div>
+<input id="searchPid" placeholder="输入题号搜索（如P1001）" style="width:300px;display:inline">
+<button onclick="searchSol()">搜索</button>
+<button onclick="loadAllSol()">全部题解</button>
+</div>
+
+<!-- 发布题解面板 -->
+<div id="publishPanel" class="box hide">
+<h3>发布新题解</h3>
+<input id="pid" placeholder="洛谷题号 Pxxxx">
+<input id="pname" placeholder="题目名称">
+<select id="diff">
+<option value="">选择难度</option>
+<option>入门</option>
+<option>普及-</option>
+<option>普及/提高-</option>
+<option>普及+/提高</option>
+<option>提高+/省选-</option>
+<option>省选/NOI-</option>
+<option>NOI/NOI+/CTSC</option>
+</select>
+<textarea id="solContent" rows="10" placeholder="支持Markdown、$$公式$$、代码块"></textarea>
+<button onclick="submitSolution()">提交题解</button>
+<button class="gray" onclick="closePublish()">取消</button>
+</div>
+<button id="publishBtn" class="hide" onclick="openPublish()">发布题解</button>
+
+<!-- 登录弹窗 -->
+<div id="loginBox" class="box hide">
+<h3>账号登录</h3>
+<input type="email" id="lemail" placeholder="邮箱">
+<input type="password" id="lpwd" placeholder="密码">
+<button onclick="doLogin()">登录</button>
+<button class="gray" onclick="hideLogin()">关闭</button>
+</div>
+
+<!-- 注册弹窗 -->
+<div id="regBox" class="box hide">
+<h3>注册账号</h3>
+<input type="email" id="remail" placeholder="邮箱">
+<input type="password" id="rpwd" placeholder="密码">
+<button onclick="doReg()">注册</button>
+<button class="gray" onclick="hideReg()">关闭</button>
+</div>
+
+<h2>题解列表</h2>
+<div id="solList"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ============ 此处替换成你自己的配置 ============
+const SUPABASE_URL = "你的Project URL";
+const SUPABASE_KEY = "sb_publishable_VS2MLB8eIh8D3FAWK_ZPvQ_VDZKIWTg";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+marked.setOptions({
+    gfm:true,
+    breaks:true
+});
+
+// 初始化
+initUser();
+loadAllSol();
+
+// 用户相关
+async function initUser(){
+    const {data:{user}} = await supabase.auth.getUser();
+    currentUser = user;
+    const bar = document.getElementById('userBar');
+    const pubBtn = document.getElementById('publishBtn');
+    if(user){
+        bar.innerHTML = `欢迎 ${user.email} <button onclick="logout()">退出登录</button>`;
+        pubBtn.classList.remove('hide');
+    }else{
+        bar.innerHTML = `<button onclick="showLogin()">登录</button><button onclick="showReg()">注册</button>`;
+        pubBtn.classList.add('hide');
+    }
+}
+
+function showLogin(){document.getElementById('loginBox').classList.remove('hide')}
+function hideLogin(){document.getElementById('loginBox').classList.add('hide')}
+function showReg(){document.getElementById('regBox').classList.remove('hide')}
+function hideReg(){document.getElementById('regBox').classList.add('hide')}
+
+async function doReg(){
+    const email = document.getElementById('remail').value;
+    const pwd = document.getElementById('rpwd').value;
+    const {error} = await supabase.auth.signUp({email,password:pwd});
+    if(error) alert(error.message);
+    else {alert('注册成功，请登录');hideReg();}
+}
+
+async function doLogin(){
+    const email = document.getElementById('lemail').value;
+    const pwd = document.getElementById('lpwd').value;
+    const {error} = await supabase.auth.signInWithPassword({email,password:pwd});
+    if(error) alert(error.message);
+    else {hideLogin();initUser();loadAllSol();}
+}
+
+async function logout(){
+    await supabase.auth.signOut();
+    initUser();
+    loadAllSol();
+}
+
+// 发布面板
+function openPublish(){document.getElementById('publishPanel').classList.remove('hide')}
+function closePublish(){document.getElementById('publishPanel').classList.add('hide')}
+
+// 提交题解
+async function submitSolution(){
+    if(!currentUser) return alert('请先登录');
+    const pid = document.getElementById('pid').value.trim();
+    const pname = document.getElementById('pname').value.trim();
+    const diff = document.getElementById('diff').value;
+    const content = document.getElementById('solContent').value.trim();
+    if(!pid||!pname||!content) return alert('题号、题目名、题解内容不能为空');
+
+    const {error} = await supabase.from('solutions').insert([{
+        user_id:currentUser.id,
+        luogu_pid:pid,
+        problem_name:pname,
+        difficulty:diff,
+        content:content
+    }]);
+    if(error) alert(error.message);
+    else{
+        document.getElementById('pid').value='';
+        document.getElementById('pname').value='';
+        document.getElementById('solContent').value='';
+        closePublish();
+        loadAllSol();
+    }
+}
+
+// 渲染题解
+function renderSol(list){
+    const wrap = document.getElementById('solList');
+    if(list.length===0){wrap.innerHTML="<p>暂无题解</p>";return;}
+    let html='';
+    list.forEach(item=>{
+        let mdHtml = marked.parse(item.content);
+        // 公式渲染
+        mdHtml = katex.renderToString(mdHtml,{throwOnError:false});
+        let btnHtml = '';
+        if(currentUser&&currentUser.id===item.user_id){
+            btnHtml = `<button onclick="delSol(${item.id})">删除我的题解</button>`;
+        }
+        html += `
+        <div class="solution-item markdown-body">
+            <div><strong>${item.luogu_pid} ${item.problem_name}</strong>
+            <span class="tag">${item.difficulty||'未分类'}</span></div>
+            ${mdHtml}
+            <small>发布时间：${new Date(item.created_at).toLocaleString()}</small>
+            ${btnHtml}
+        </div>`;
+    });
+    wrap.innerHTML=html;
+}
+
+// 加载全部
+async function loadAllSol(){
+    const {data,error} = await supabase.from('solutions')
+        .select('*')
+        .order('created_at',{ascending:false});
+    if(error) return console.error(error);
+    renderSol(data);
+}
+
+// 搜索题号
+async function searchSol(){
+    const key = document.getElementById('searchPid').value.trim().toUpperCase();
+    if(!key) return loadAllSol();
+    const {data,error} = await supabase.from('solutions')
+        .select('*')
+        .ilike('luogu_pid',`%${key}%`)
+        .order('created_at',{ascending:false});
+    if(error) return console.error(error);
+    renderSol(data);
+}
+
+// 删除题解
+async function delSol(id){
+    if(!confirm('确定删除该题解？')) return;
+    const {error} = await supabase.from('solutions').delete().eq('id',id);
+    if(error) alert(error.message);
+    else loadAllSol();
+}
+</script>
+</body>
+</html>

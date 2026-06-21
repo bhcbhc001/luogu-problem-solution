@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>洛谷题解分享站</title>
+<title>洛谷题解站</title>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -22,16 +22,16 @@
   --text-primary: #f0f0ff;
   --text-secondary: #b4b4cc;
   --danger: #ff4757;
+  --border-subtle: rgba(127, 84, 215, 0.18);
 }
 body {
-  font-family: "Segoe UI", Roboto, system-ui, sans-serif;
-  background: var(--dark-bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--dark-bg);
   background-image:
     radial-gradient(circle at 10% 20%, rgba(127, 84, 215, 0.12) 0%, transparent 45%),
     radial-gradient(circle at 90% 80%, rgba(176, 143, 255, 0.08) 0%, transparent 45%);
   color: var(--text-primary);
   min-height: 100vh;
-  padding: 20px 16px;
   line-height: 1.65;
   animation: pageFadeIn 0.7s ease-out;
 }
@@ -40,36 +40,39 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 .container-wrap {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
+  padding: 0 20px;
 }
+
+/* ========== 导航栏（对标 GitHub 导航结构） ========== */
 header {
   backdrop-filter: var(--glass-blur);
   background: rgba(18, 18, 35, 0.6);
-  border: 1px solid rgba(127, 84, 215, 0.25);
-  border-radius: 16px;
-  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+}
+.header-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  box-shadow: 0 0 22px rgba(127, 84, 215, 0.15);
-  position: sticky;
-  top: 8px;
-  z-index: 99;
 }
-header h1 {
+.logo-text {
   font-size: 24px;
-  background: linear-gradient(90deg, var(--light-purple), #fff);
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--light-purple), #ffffff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   letter-spacing: 1px;
 }
-#userBar button {
+.nav-actions button {
   padding: 8px 16px;
   margin-left: 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid rgba(176, 143, 255, 0.3);
   background: transparent;
   color: var(--text-primary);
@@ -78,7 +81,7 @@ header h1 {
   position: relative;
   overflow: hidden;
 }
-#userBar button::before {
+.nav-actions button::before {
   content: "";
   position: absolute;
   left: -100%;
@@ -88,29 +91,68 @@ header h1 {
   background: linear-gradient(90deg, transparent, rgba(127, 84, 215, 0.35), transparent);
   transition: left 0.4s ease;
 }
-#userBar button:hover::before { left: 100%; }
-#userBar button:hover {
+.nav-actions button:hover::before { left: 100%; }
+.nav-actions button:hover {
   border-color: var(--light-purple);
   box-shadow: 0 0 12px rgba(127, 84, 215, 0.35);
 }
+
+/* ========== 头部横幅 Hero 区（GitHub 首页大区块风格） ========== */
+.hero-banner {
+  padding: 60px 0 40px;
+  text-align: center;
+  position: relative;
+}
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(127, 84, 215, 0.15) 0%, transparent 70%);
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  filter: blur(40px);
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+.hero-title {
+  font-size: 42px;
+  margin-bottom: 16px;
+  background: linear-gradient(90deg, #fff, var(--light-purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-desc {
+  max-width: 680px;
+  margin: 0 auto 30px;
+  color: var(--text-secondary);
+  font-size: 17px;
+}
+
+/* ========== 搜索栏区块 ========== */
 .search-wrapper {
   backdrop-filter: var(--glass-blur);
   background: var(--card-bg);
-  border: 1px solid rgba(127, 84, 215, 0.2);
-  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
   padding: 18px 22px;
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
 }
 #searchPid {
   flex: 1;
   min-width: 260px;
   background: rgba(15,15,30,0.6);
-  border: 1px solid rgba(127, 84, 215, 0.22);
-  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
   padding: 11px 15px;
   color: #fff;
   font-size: 15px;
@@ -121,12 +163,14 @@ header h1 {
   border-color: var(--light-purple);
   box-shadow: 0 0 15px rgba(176, 143, 255, 0.3);
 }
+
+/* ========== 按钮样式 ========== */
 .btn-primary {
   background: linear-gradient(135deg, var(--main-purple), #915cf0);
   border: none;
   color: white;
   padding: 11px 20px;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
@@ -141,7 +185,7 @@ header h1 {
   border: 1px solid rgba(170,170,200,0.25);
   color: var(--text-primary);
   padding: 11px 20px;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -154,7 +198,7 @@ header h1 {
   border: none;
   color: white;
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: 7px;
   cursor: pointer;
   transition: 0.25s;
   font-size: 14px;
@@ -164,13 +208,15 @@ header h1 {
   box-shadow: 0 0 12px rgba(255, 71, 87, 0.45);
 }
 .action-bar {
-  margin: 22px 0;
+  margin: 0 0 28px;
 }
+
+/* ========== 弹窗样式 ========== */
 .modal-box {
   backdrop-filter: var(--glass-blur);
   background: var(--card-bg);
-  border: 1px solid rgba(127, 84, 215, 0.25);
-  border-radius: 18px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
   padding: 24px 26px;
   margin: 20px 0;
   box-shadow: 0 0 30px rgba(127, 84, 215, 0.12);
@@ -190,8 +236,8 @@ header h1 {
 input, textarea, select {
   width: 100%;
   background: rgba(15,15,30,0.6);
-  border: 1px solid rgba(127, 84, 215, 0.22);
-  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
   padding: 12px 15px;
   margin: 8px 0;
   color: #fff;
@@ -203,14 +249,43 @@ input:focus, textarea:focus, select:focus {
   border-color: var(--light-purple);
   box-shadow: 0 0 16px rgba(176, 143, 255, 0.32);
 }
+
+/* ========== 题解卡片（对标 GitHub Repo 卡片风格 + 炫酷悬浮） ========== */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 36px 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.section-title {
+  font-size: 22px;
+  color: #fff;
+}
 .solution-card {
   backdrop-filter: var(--glass-blur);
   background: var(--card-bg);
-  border: 1px solid rgba(127, 84, 215, 0.18);
-  border-radius: 18px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
   padding: 24px 26px;
-  margin: 20px 0;
+  margin: 16px 0;
   transition: all 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+.solution-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(127, 84, 215, 0.08), transparent);
+  transition: left 0.5s ease;
+}
+.solution-card:hover::after {
+  left: 100%;
 }
 .solution-card:hover {
   transform: translateY(-5px);
@@ -220,7 +295,7 @@ input:focus, textarea:focus, select:focus {
 .tag-diff {
   display: inline-block;
   padding: 5px 12px;
-  border-radius: 30px;
+  border-radius: 20px;
   font-size: 13px;
   margin-left: 12px;
   background: rgba(127, 84, 215, 0.18);
@@ -232,7 +307,7 @@ input:focus, textarea:focus, select:focus {
 }
 .markdown-body pre {
   background: rgba(10,10,22,0.7);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 14px 16px;
   overflow-x: auto;
   margin: 14px 0;
@@ -249,18 +324,11 @@ input:focus, textarea:focus, select:focus {
   color: var(--text-secondary);
   font-size: 14px;
 }
-.section-title {
-  margin: 14px 0 18px;
-  font-size: 22px;
-  padding-left: 14px;
-  border-left: 5px solid var(--main-purple);
-  color: #fff;
-}
 .empty-tip {
   text-align: center;
-  padding: 45px 0;
+  padding: 50px 0;
   color: var(--text-secondary);
-  font-size: 15px;
+  font-size: 16px;
 }
 .btn-row {
   display: flex;
@@ -270,10 +338,27 @@ input:focus, textarea:focus, select:focus {
 .card-footer {
   margin-top: 18px;
   padding-top: 14px;
-  border-top: 1px solid rgba(127, 84, 215, 0.15);
+  border-top: 1px solid var(--border-subtle);
 }
+
+/* ========== 底部署名页脚（全局固定） ========== */
+footer {
+  margin-top: 70px;
+  padding: 40px 0 30px;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+.footer-author {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: var(--light-purple);
+}
+
+/* 移动端适配 */
 @media (max-width: 660px) {
-  header {
+  .header-inner {
     flex-direction: column;
     gap: 16px;
     text-align: center;
@@ -282,18 +367,29 @@ input:focus, textarea:focus, select:focus {
     flex-direction: column;
     align-items: stretch;
   }
+  .hero-title {
+    font-size: 28px;
+  }
 }
 </style>
 </head>
 <body>
-<div class="container-wrap">
-  <header>
-    <h1>洛谷题解分享站</h1>
-    <div id="userBar">
-      <!-- 跳转独立登录注册页 -->
+<header>
+  <div class="container-wrap header-inner">
+    <div class="logo-text">洛谷题解站</div>
+    <div class="nav-actions" id="userBar">
       <button onclick="location.href='auth.html'">登录 / 注册</button>
     </div>
-  </header>
+  </div>
+</header>
+
+<div class="container-wrap">
+  <section class="hero-banner">
+    <div class="hero-content">
+      <h1 class="hero-title">收集、分享洛谷编程题解</h1>
+      <p class="hero-desc">注册账号即可发布你的解题思路、代码与笔记，支持 Markdown 排版与 LaTeX 数学公式渲染，公开查阅所有用户分享的题解内容</p>
+    </div>
+  </section>
 
   <div class="search-wrapper">
     <input id="searchPid" placeholder="输入题号快速搜索（例：P1001）">
@@ -305,7 +401,7 @@ input:focus, textarea:focus, select:focus {
     <button id="publishingBtn" class="hide btn-primary" onclick="openPublish()">发布新题解</button>
   </div>
 
-  <!-- 发布题解弹窗（仅主页存在） -->
+  <!-- 发布弹窗 -->
   <div id="publishingPanel" class="modal-box hide">
     <h3>发布题解</h3>
     <input id="pid" placeholder="洛谷题号，例如 P1001">
@@ -327,8 +423,16 @@ input:focus, textarea:focus, select:focus {
     </div>
   </div>
 
-  <h2 class="section-title">全部题解列表</h2>
+  <div class="section-header">
+    <h2 class="section-title">全部题解列表</h2>
+  </div>
   <div id="solList"></div>
+
+  <!-- 页脚署名 -->
+  <footer>
+    <div class="footer-author">作者：BoHyCar</div>
+    <div>洛谷题解站 · 开源学习项目 · Copyright © 2026 All Rights Reserved</div>
+  </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -351,7 +455,7 @@ async function initUser(){
   const bar = document.getElementById('userBar');
   const pubBtn = document.getElementById('publishingBtn');
   if(user){
-    bar.innerHTML = `欢迎 ${user.email} <button class="btn-gray" style="padding:6px 12px;font-size:14px" onclick="logout()">退出登录</button>`;
+    bar.innerHTML = `<span style="margin-right:10px">欢迎 ${user.email}</span><button class="btn-gray" style="padding:6px 12px;font-size:14px" onclick="logout()">退出登录</button>`;
     pubBtn.classList.remove('hide');
   }else{
     bar.innerHTML = `<button onclick="location.href='auth.html'">登录 / 注册</button>`;

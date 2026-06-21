@@ -3,223 +3,465 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>洛谷题解站</title>
+<title>洛谷题解分享站</title>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{max-width:1100px;margin:0 auto;padding:20px;font-family:system-ui}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #eee}
-.box{border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:15px 0}
-input,textarea,select{width:100%;padding:8px 10px;margin:6px 0;border:1px solid #ddd;border-radius:4px}
-button{padding:8px 14px;margin:4px;cursor:pointer;background:#409eff;color:#fff;border:none;border-radius:4px}
-button.gray{background:#999}
-.solution-item{margin:12px 0;padding:14px;border:1px solid #eee;border-radius:6px}
-.tag{display:inline-block;background:#eef4ff;padding:3px 8px;border-radius:12px;font-size:13px;margin:2px}
-.hide{display:none}
-.markdown-body pre{background:#f6f8fa;padding:10px;overflow:auto;border-radius:4px}
-.markdown-body code{background:#f6f8fa;padding:2px 4px;border-radius:3px}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+:root {
+  --main-purple: #7f54d7;
+  --light-purple: #b08fff;
+  --dark-bg: #0d0d1a;
+  --card-bg: rgba(22, 22, 40, 0.75);
+  --glass-blur: blur(10px);
+  --text-primary: #f0f0ff;
+  --text-secondary: #b4b4cc;
+  --danger: #ff4757;
+}
+body {
+  font-family: "Segoe UI", Roboto, system-ui, sans-serif;
+  background: var(--dark-bg);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(127, 84, 215, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 90% 80%, rgba(176, 143, 255, 0.08) 0%, transparent 45%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 20px 16px;
+  line-height: 1.65;
+  animation: pageFadeIn 0.7s ease-out;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.container-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+header {
+  backdrop-filter: var(--glass-blur);
+  background: rgba(18, 18, 35, 0.6);
+  border: 1px solid rgba(127, 84, 215, 0.25);
+  border-radius: 16px;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  box-shadow: 0 0 22px rgba(127, 84, 215, 0.15);
+  position: sticky;
+  top: 8px;
+  z-index: 99;
+}
+header h1 {
+  font-size: 24px;
+  background: linear-gradient(90deg, var(--light-purple), #fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+}
+#userBar button {
+  padding: 8px 16px;
+  margin-left: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(176, 143, 255, 0.3);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+#userBar button::before {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(127, 84, 215, 0.35), transparent);
+  transition: left 0.4s ease;
+}
+#userBar button:hover::before { left: 100%; }
+#userBar button:hover {
+  border-color: var(--light-purple);
+  box-shadow: 0 0 12px rgba(127, 84, 215, 0.35);
+}
+.search-wrapper {
+  backdrop-filter: var(--glass-blur);
+  background: var(--card-bg);
+  border: 1px solid rgba(127, 84, 215, 0.2);
+  border-radius: 16px;
+  padding: 18px 22px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 20px;
+}
+#searchPid {
+  flex: 1;
+  min-width: 260px;
+  background: rgba(15,15,30,0.6);
+  border: 1px solid rgba(127, 84, 215, 0.22);
+  border-radius: 12px;
+  padding: 11px 15px;
+  color: #fff;
+  font-size: 15px;
+  transition: 0.3s;
+}
+#searchPid:focus {
+  outline: none;
+  border-color: var(--light-purple);
+  box-shadow: 0 0 15px rgba(176, 143, 255, 0.3);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--main-purple), #915cf0);
+  border: none;
+  color: white;
+  padding: 11px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+.btn-primary:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 18px rgba(127, 84, 215, 0.5);
+  transform: translateY(-2px);
+}
+.btn-gray {
+  background: rgba(60,60,90,0.55);
+  border: 1px solid rgba(170,170,200,0.25);
+  color: var(--text-primary);
+  padding: 11px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-gray:hover {
+  border-color: rgba(176, 143, 255, 0.4);
+  box-shadow: 0 0 10px rgba(127, 84, 215, 0.2);
+}
+.btn-danger {
+  background: var(--danger);
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.25s;
+  font-size: 14px;
+}
+.btn-danger:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 12px rgba(255, 71, 87, 0.45);
+}
+.action-bar {
+  margin: 22px 0;
+}
+.modal-box {
+  backdrop-filter: var(--glass-blur);
+  background: var(--card-bg);
+  border: 1px solid rgba(127, 84, 215, 0.25);
+  border-radius: 18px;
+  padding: 24px 26px;
+  margin: 20px 0;
+  box-shadow: 0 0 30px rgba(127, 84, 215, 0.12);
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1);
+}
+.modal-box:not(.hide) {
+  transform: scale(1);
+  opacity: 1;
+}
+.modal-box h3 {
+  margin-bottom: 16px;
+  color: var(--light-purple);
+  font-size: 20px;
+}
+input, textarea, select {
+  width: 100%;
+  background: rgba(15,15,30,0.6);
+  border: 1px solid rgba(127, 84, 215, 0.22);
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin: 8px 0;
+  color: #fff;
+  font-size: 15px;
+  transition: 0.3s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--light-purple);
+  box-shadow: 0 0 16px rgba(176, 143, 255, 0.32);
+}
+.solution-card {
+  backdrop-filter: var(--glass-blur);
+  background: var(--card-bg);
+  border: 1px solid rgba(127, 84, 215, 0.18);
+  border-radius: 18px;
+  padding: 24px 26px;
+  margin: 20px 0;
+  transition: all 0.35s ease;
+}
+.solution-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(127, 84, 215, 0.45);
+  box-shadow: 0 8px 35px rgba(127, 84, 215, 0.22);
+}
+.tag-diff {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 30px;
+  font-size: 13px;
+  margin-left: 12px;
+  background: rgba(127, 84, 215, 0.18);
+  color: var(--light-purple);
+  border: 1px solid rgba(176, 143, 255, 0.25);
+}
+.hide {
+  display: none !important;
+}
+.markdown-body pre {
+  background: rgba(10,10,22,0.7);
+  border-radius: 12px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 14px 0;
+  border-left: 3px solid var(--main-purple);
+}
+.markdown-body code {
+  background: rgba(30,30,55,0.65);
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-family: Consolas, monospace;
+  color: #ffd8ff;
+}
+.text-muted {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+.section-title {
+  margin: 14px 0 18px;
+  font-size: 22px;
+  padding-left: 14px;
+  border-left: 5px solid var(--main-purple);
+  color: #fff;
+}
+.empty-tip {
+  text-align: center;
+  padding: 45px 0;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+.btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+.card-footer {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(127, 84, 215, 0.15);
+}
+@media (max-width: 660px) {
+  header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  .search-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
 </style>
 </head>
 <body>
-<header>
-<h1>洛谷题解站</h1>
-<div id="userBar">
-<button onclick="showLogin()">登录</button>
-<button onclick="showReg()">注册</button>
-</div>
-</header>
+<div class="container-wrap">
+  <header>
+    <h1>洛谷题解分享站</h1>
+    <div id="userBar">
+      <!-- 跳转独立登录注册页 -->
+      <button onclick="location.href='auth.html'">登录 / 注册</button>
+    </div>
+  </header>
 
-<div>
-<input id="searchPid" placeholder="输入题号搜索（如P1001）" style="width:300px;display:inline">
-<button onclick="searchSol()">搜索</button>
-<button onclick="loadAllSol()">全部题解</button>
-</div>
+  <div class="search-wrapper">
+    <input id="searchPid" placeholder="输入题号快速搜索（例：P1001）">
+    <button class="btn-primary" onclick="searchSol()">搜索</button>
+    <button class="btn-gray" onclick="loadAllSol()">全部题解</button>
+  </div>
 
-<!-- 发布题解面板 -->
-<div id="publishPanel" class="box hide">
-<h3>发布新题解</h3>
-<input id="pid" placeholder="洛谷题号 Pxxxx">
-<input id="pname" placeholder="题目名称">
-<select id="diff">
-<option value="">选择难度</option>
-<option>入门</option>
-<option>普及-</option>
-<option>普及/提高-</option>
-<option>普及+/提高</option>
-<option>提高+/省选-</option>
-<option>省选/NOI-</option>
-<option>NOI/NOI+/CTSC</option>
-</select>
-<textarea id="solContent" rows="10" placeholder="支持Markdown、$$公式$$、代码块"></textarea>
-<button onclick="submitSolution()">提交题解</button>
-<button class="gray" onclick="closePublish()">取消</button>
-</div>
-<button id="publishBtn" class="hide" onclick="openPublish()">发布题解</button>
+  <div class="action-bar">
+    <button id="publishingBtn" class="hide btn-primary" onclick="openPublish()">发布新题解</button>
+  </div>
 
-<!-- 登录弹窗 -->
-<div id="loginBox" class="box hide">
-<h3>账号登录</h3>
-<input type="email" id="lemail" placeholder="邮箱">
-<input type="password" id="lpwd" placeholder="密码">
-<button onclick="doLogin()">登录</button>
-<button class="gray" onclick="hideLogin()">关闭</button>
-</div>
+  <!-- 发布题解弹窗（仅主页存在） -->
+  <div id="publishingPanel" class="modal-box hide">
+    <h3>发布题解</h3>
+    <input id="pid" placeholder="洛谷题号，例如 P1001">
+    <input id="pname" placeholder="题目全称">
+    <select id="diff">
+      <option value="">选择难度分级</option>
+      <option>入门</option>
+      <option>普及-</option>
+      <option>普及/提高-</option>
+      <option>普及+/提高</option>
+      <option>提高+/省选-</option>
+      <option>省选/NOI-</option>
+      <option>NOI/NOI+/CTSC</option>
+    </select>
+    <textarea id="solContent" rows="12" placeholder="支持 Markdown 排版、$$数学公式$$、代码块粘贴"></textarea>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="submitSolution()">提交发布</button>
+      <button class="btn-gray" onclick="closePublish()">取消</button>
+    </div>
+  </div>
 
-<!-- 注册弹窗 -->
-<div id="regBox" class="box hide">
-<h3>注册账号</h3>
-<input type="email" id="remail" placeholder="邮箱">
-<input type="password" id="rpwd" placeholder="密码">
-<button onclick="doReg()">注册</button>
-<button class="gray" onclick="hideReg()">关闭</button>
+  <h2 class="section-title">全部题解列表</h2>
+  <div id="solList"></div>
 </div>
-
-<h2>题解列表</h2>
-<div id="solList"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ============ 此处替换成你自己的配置 ============
 const SUPABASE_URL = "https://lvvbvxjqpecjyumrtbgi.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmJ2eGpxcGVjanl1bXJ0YmdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMjQ5MjYsImV4cCI6MjA5NzYwMDkyNn0.N90WEhvUllsBHekYbiMQIixhKUSFXu00P9gKI4ZRAoM";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
-marked.setOptions({
-    gfm:true,
-    breaks:true
+
+document.addEventListener('DOMContentLoaded', () => {
+  marked.setOptions({gfm:true, breaks:true});
+  initUser();
+  loadAllSol();
 });
 
-// 初始化
-initUser();
-loadAllSol();
-
-// 用户相关
 async function initUser(){
-    const {data:{user}} = await supabase.auth.getUser();
-    currentUser = user;
-    const bar = document.getElementById('userBar');
-    const pubBtn = document.getElementById('publishBtn');
-    if(user){
-        bar.innerHTML = `欢迎 ${user.email} <button onclick="logout()">退出登录</button>`;
-        pubBtn.classList.remove('hide');
-    }else{
-        bar.innerHTML = `<button onclick="showLogin()">登录</button><button onclick="showReg()">注册</button>`;
-        pubBtn.classList.add('hide');
-    }
-}
-
-function showLogin(){document.getElementById('loginBox').classList.remove('hide')}
-function hideLogin(){document.getElementById('loginBox').classList.add('hide')}
-function showReg(){document.getElementById('regBox').classList.remove('hide')}
-function hideReg(){document.getElementById('regBox').classList.add('hide')}
-
-async function doReg(){
-    const email = document.getElementById('remail').value;
-    const pwd = document.getElementById('rpwd').value;
-    const {error} = await supabase.auth.signUp({email,password:pwd});
-    if(error) alert(error.message);
-    else {alert('注册成功，请登录');hideReg();}
-}
-
-async function doLogin(){
-    const email = document.getElementById('lemail').value;
-    const pwd = document.getElementById('lpwd').value;
-    const {error} = await supabase.auth.signInWithPassword({email,password:pwd});
-    if(error) alert(error.message);
-    else {hideLogin();initUser();loadAllSol();}
+  const {data:{user}} = await sbClient.auth.getUser();
+  currentUser = user;
+  const bar = document.getElementById('userBar');
+  const pubBtn = document.getElementById('publishingBtn');
+  if(user){
+    bar.innerHTML = `欢迎 ${user.email} <button class="btn-gray" style="padding:6px 12px;font-size:14px" onclick="logout()">退出登录</button>`;
+    pubBtn.classList.remove('hide');
+  }else{
+    bar.innerHTML = `<button onclick="location.href='auth.html'">登录 / 注册</button>`;
+    pubBtn.classList.add('hide');
+  }
 }
 
 async function logout(){
-    await supabase.auth.signOut();
-    initUser();
-    loadAllSol();
+  await sbClient.auth.signOut();
+  location.reload();
 }
 
-// 发布面板
-function openPublish(){document.getElementById('publishPanel').classList.remove('hide')}
-function closePublish(){document.getElementById('publishPanel').classList.add('hide')}
+function openPublish(){document.getElementById('publishingPanel').classList.remove('hide')}
+function closePublish(){document.getElementById('publishingPanel').classList.add('hide')}
 
-// 提交题解
 async function submitSolution(){
-    if(!currentUser) return alert('请先登录');
-    const pid = document.getElementById('pid').value.trim();
-    const pname = document.getElementById('pname').value.trim();
-    const diff = document.getElementById('diff').value;
-    const content = document.getElementById('solContent').value.trim();
-    if(!pid||!pname||!content) return alert('题号、题目名、题解内容不能为空');
+  if(!currentUser) {
+    alert('请先登录账号');
+    location.href='auth.html';
+    return;
+  }
+  const pid = document.getElementById('pid').value.trim();
+  const pname = document.getElementById('pname').value.trim();
+  const diff = document.getElementById('diff').value;
+  const content = document.getElementById('solContent').value.trim();
+  if(!pid||!pname||!content) return alert('题号、题目名称、题解内容不能为空');
 
-    const {error} = await supabase.from('solutions').insert([{
-        user_id:currentUser.id,
-        luogu_pid:pid,
-        problem_name:pname,
-        difficulty:diff,
-        content:content
-    }]);
-    if(error) alert(error.message);
-    else{
-        document.getElementById('pid').value='';
-        document.getElementById('pname').value='';
-        document.getElementById('solContent').value='';
-        closePublish();
-        loadAllSol();
-    }
+  const {error} = await sbClient.from('solutions').insert([{
+    user_id:currentUser.id,
+    luogu_pid:pid,
+    problem_name:pname,
+    difficulty:diff,
+    content:content
+  }]);
+  if(error){
+    alert("发布失败："+error.message);
+    console.error(error);
+  }else{
+    document.getElementById('pid').value='';
+    document.getElementById('pname').value='';
+    document.getElementById('solContent').value='';
+    closePublish();
+    loadAllSol();
+  }
 }
 
-// 渲染题解
 function renderSol(list){
-    const wrap = document.getElementById('solList');
-    if(list.length===0){wrap.innerHTML="<p>暂无题解</p>";return;}
-    let html='';
-    list.forEach(item=>{
-        let mdHtml = marked.parse(item.content);
-        // 公式渲染
-        mdHtml = katex.renderToString(mdHtml,{throwOnError:false});
-        let btnHtml = '';
-        if(currentUser&&currentUser.id===item.user_id){
-            btnHtml = `<button onclick="delSol(${item.id})">删除我的题解</button>`;
-        }
-        html += `
-        <div class="solution-item markdown-body">
-            <div><strong>${item.luogu_pid} ${item.problem_name}</strong>
-            <span class="tag">${item.difficulty||'未分类'}</span></div>
-            ${mdHtml}
-            <small>发布时间：${new Date(item.created_at).toLocaleString()}</small>
-            ${btnHtml}
-        </div>`;
-    });
-    wrap.innerHTML=html;
+  const wrap = document.getElementById('solList');
+  if(list.length===0){
+    wrap.innerHTML = `<div class="empty-tip">暂无题解，快来发布第一篇题解吧✨</div>`;
+    return;
+  }
+  let html = '';
+  list.forEach(item=>{
+    let mdHtml = marked.parse(item.content);
+    mdHtml = katex.renderToString(mdHtml,{throwOnError:false});
+    let delBtn = '';
+    if(currentUser && currentUser.id === item.user_id){
+      delBtn = `<button class="btn-danger" onclick="delSol(${item.id})">删除本题解</button>`;
+    }
+    html += `
+    <div class="solution-card markdown-body">
+      <div style="margin-bottom:12px;">
+        <strong style="font-size:18px;color:#fff">${item.luogu_pid} ${item.problem_name}</strong>
+        <span class="tag-diff">${item.difficulty||'未设置难度'}</span>
+      </div>
+      ${mdHtml}
+      <div class="card-footer">
+        <div class="text-muted">
+          作者UID：${item.user_id}<br>
+          发布时间：${new Date(item.created_at).toLocaleString()}
+        </div>
+        <div style="margin-top:10px;">${delBtn}</div>
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = html;
 }
 
-// 加载全部
 async function loadAllSol(){
-    const {data,error} = await supabase.from('solutions')
-        .select('*')
-        .order('created_at',{ascending:false});
-    if(error) return console.error(error);
-    renderSol(data);
+  const {data,error} = await sbClient.from('solutions')
+      .select('*')
+      .order('created_at',{ascending:false});
+  if(error){
+    console.error("加载题解异常",error);
+    return;
+  }
+  renderSol(data);
 }
 
-// 搜索题号
 async function searchSol(){
-    const key = document.getElementById('searchPid').value.trim().toUpperCase();
-    if(!key) return loadAllSol();
-    const {data,error} = await supabase.from('solutions')
-        .select('*')
-        .ilike('luogu_pid',`%${key}%`)
-        .order('created_at',{ascending:false});
-    if(error) return console.error(error);
-    renderSol(data);
+  const key = document.getElementById('searchPid').value.trim().toUpperCase();
+  if(!key) return loadAllSol();
+  const {data,error} = await sbClient.from('solutions')
+      .select('*')
+      .ilike('luogu_pid',`%${key}%`)
+      .order('created_at',{ascending:false});
+  if(error){
+    console.error(error);
+    return;
+  }
+  renderSol(data);
 }
 
-// 删除题解
 async function delSol(id){
-    if(!confirm('确定删除该题解？')) return;
-    const {error} = await supabase.from('solutions').delete().eq('id',id);
-    if(error) alert(error.message);
-    else loadAllSol();
+  if(!confirm('确定永久删除该题解？无法恢复')) return;
+  const {error} = await sbClient.from('solutions').delete().eq('id',id);
+  if(error){
+    alert("删除失败："+error.message);
+  }else loadAllSol();
 }
 </script>
 </body>

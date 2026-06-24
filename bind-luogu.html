@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>绑定洛谷账号 - 洛谷题解站</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+:root {
+  --main-purple: #7f54d7;
+  --light-purple: #b08fff;
+  --dark-bg: #0d0d1a;
+  --card-bg: rgba(22, 22, 40, 0.75);
+  --glass-blur: blur(12px);
+  --text-primary: #f0f0ff;
+  --text-secondary: #b4b4cc;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--dark-bg);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(127, 84, 215, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 90% 80%, rgba(176, 143, 255, 0.08) 0%, transparent 45%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: pageFadeIn 0.6s ease-out;
+}
+.bg-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(176, 143, 255, 0.2);
+  animation: float 15s infinite linear;
+  filter: blur(1px);
+}
+@keyframes float {
+  0% {transform: translateY(100vh) rotate(0deg);opacity: 0;}
+  10% {opacity: 0.6;}
+  90% {opacity: 0.5;}
+  100% {transform: translateY(-100vh) rotate(720deg);opacity: 0;}
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(127, 84, 215, 0.09) 0%, transparent 45%);
+  z-index: -1;
+  pointer-events: none;
+  transition: background 0.1s ease;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.bind-wrap {
+  width: 100%;
+  max-width: 460px;
+}
+.bind-card {
+  backdrop-filter: var(--glass-blur);
+  background: var(--card-bg);
+  border: 1px solid rgba(127, 84, 215, 0.25);
+  border-radius: 20px;
+  padding: 36px;
+  box-shadow: 0 0 35px rgba(127, 84, 215, 0.15);
+}
+.bind-title {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, var(--light-purple), #ffffff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tip-text {
+  text-align: center;
+  color: #ff8888;
+  font-size: 14px;
+  margin-bottom: 26px;
+  line-height: 1.5;
+}
+.desc-tip {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 6px 0 18px;
+}
+input {
+  width: 100%;
+  background: rgba(15,15,30,0.6);
+  border: 1px solid rgba(127, 84, 215, 0.22);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 8px 0;
+  color: #fff;
+  font-size: 15px;
+  transition: 0.3s;
+}
+input:focus {
+  outline: none;
+  border-color: var(--light-purple);
+  box-shadow: 0 0 16px rgba(176, 143, 255, 0.32);
+}
+.submit-btn {
+  width: 100%;
+  margin-top: 14px;
+  background: linear-gradient(135deg, var(--main-purple), #915cf0);
+  border: none;
+  color: white;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.submit-btn:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 20px rgba(127, 84, 215, 0.5);
+  transform: translateY(-2px);
+}
+.back-link {
+  text-align: center;
+  margin-top: 24px;
+}
+.back-link a {
+  color: var(--light-purple);
+  text-decoration: none;
+  font-size: 14px;
+}
+.back-link a:hover {
+  text-decoration: underline;
+}
+footer {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+.footer-author {
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: var(--light-purple);
+}
+</style>
+</head>
+<body>
+<div class="bg-particles" id="particlesWrap"></div>
+<div class="bind-wrap">
+  <div class="bind-card">
+    <h1 class="bind-title">绑定洛谷账号</h1>
+    <p class="tip-text">⚠️ 必须绑定洛谷UID，才可进入本站使用全部功能</p>
+    <p class="desc-tip">如何获取UID：打开洛谷个人主页，网址 user/后面数字即为UID</p>
+
+    <input type="number" id="luoguUid" placeholder="请输入你的洛谷UID（纯数字）">
+    <div id="checkTip" style="font-size:13px;margin:4px 0 10px;"></div>
+
+    <button class="submit-btn" onclick="bindLuogu()">确认绑定并进入网站</button>
+
+    <div class="back-link">
+      <a href="auth.html">← 返回登录页</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-author">作者：BoHyCar</div>
+  <div>洛谷题解站 · Copyright © 2026 All Rights Reserved</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://lvvbvxjqpecjyumrtbgi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmJ2eGpxcGVjanl1bXJ0YmdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMjQ5MjYsImV4cCI6MjA5NzYwMDkyNn0.N90WEhvUllsBHekYbiMQIixhKUSFXu00P9gKI4ZRAoM";
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
+
+// 粒子背景
+(function createParticles(){
+  const wrap = document.getElementById('particlesWrap');
+  const count = 18;
+  for(let i=0;i<count;i++){
+    const div = document.createElement('div');
+    div.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    div.style.width = size+'px';
+    div.style.height = size+'px';
+    div.style.left = Math.random()*100+'%';
+    div.style.animationDuration = (Math.random()*12+10)+'s';
+    div.style.animationDelay = Math.random()*8+'s';
+    wrap.appendChild(div);
+  }
+})();
+document.addEventListener('mousemove', e=>{
+  document.documentElement.style.setProperty('--mouse-x', e.clientX+'px');
+  document.documentElement.style.setProperty('--mouse-y', e.clientY+'px');
+});
+
+// 登录态校验，未登录跳转登录页
+async function checkLogin(){
+  const {data:{user}} = await sbClient.auth.getUser();
+  currentUser = user;
+  if(!user){
+    location.href = 'auth.html';
+    return;
+  }
+  // 已绑定直接进首页
+  const {data:profile} = await sbClient.from('user_profiles').select('id').eq('id', user.id).single();
+  if(profile){
+    location.href = 'index.html';
+  }
+}
+checkLogin();
+
+// 绑定核心逻辑（中转接口规避跨域）
+async function bindLuogu(){
+  const uidInput = document.getElementById('luoguUid').value.trim();
+  const tipDom = document.getElementById('checkTip');
+  if(!/^\d+$/.test(uidInput)){
+    tipDom.style.color = '#ff7777';
+    tipDom.innerText = 'UID必须是纯数字';
+    return;
+  }
+  const luoguUid = Number(uidInput);
+  tipDom.innerText = '正在校验洛谷账号是否存在...';
+  tipDom.style.color = '#aaa';
+
+  try{
+    // 跨域中转查询洛谷用户信息
+    const res = await fetch(`https://api.jerryz.com.cn/luogu/user?uid=${luoguUid}`);
+    if (!res.ok) throw new Error('接口请求失败');
+    const userInfo = await res.json();
+
+    // ========== 关键：判断洛谷用户是否真实存在 ==========
+    // 洛谷不存在用户时接口一般返回空/无name字段
+    if (!userInfo || !userInfo.name || userInfo.name === '' || userInfo.error) {
+      tipDom.style.color = '#ff7777';
+      tipDom.innerText = `校验失败：洛谷 UID ${luoguUid} 不存在，请核对号码`;
+      return;
+    }
+
+    const luoguName = userInfo.name;
+    const luoguHome = `https://www.luogu.com.cn/user/${luoguUid}`;
+
+    // 额外校验：该洛谷UID是否已经被本站其他账号绑定
+    const {data: existBind} = await sbClient
+      .from('user_profiles')
+      .select('id')
+      .eq('luogu_uid', luoguUid)
+      .single();
+
+    if(existBind){
+      tipDom.style.color = '#ff7777';
+      tipDom.innerText = '该洛谷UID已被其他账号绑定，不可重复绑定';
+      return;
+    }
+
+    // 写入绑定数据
+    const {error:insertErr} = await sbClient.from('user_profiles').insert({
+      id: currentUser.id,
+      luogu_uid: luoguUid,
+      luogu_name: luoguName,
+      luogu_homepage: luoguHome
+    });
+
+    if(insertErr){
+      console.error(insertErr);
+      tipDom.style.color = '#ff7777';
+      tipDom.innerText = '数据库异常，绑定失败';
+      return;
+    }
+
+    tipDom.style.color = '#7cf090';
+    tipDom.innerText = `绑定成功！洛谷昵称：${luoguName}`;
+    setTimeout(()=>{
+      location.href = 'index.html';
+    },1200);
+
+  }catch(err){
+    console.error(err);
+    tipDom.style.color = '#ff7777';
+    if (err.message.includes('fetch')) {
+      tipDom.innerText = '网络异常，无法访问洛谷校验接口，请稍后重试';
+    } else {
+      tipDom.innerText = '校验出错，无法判断该UID是否有效';
+    }
+  }
+}
+
+// 输入框离焦自动预检测洛谷UID是否存在
+document.getElementById('luoguUid').addEventListener('blur', async function(){
+  const val = this.value.trim();
+  const tipDom = document.getElementById('checkTip');
+  if (!/^\d+$/.test(val)) {
+    tipDom.style.color = '#ff7777';
+    tipDom.innerText = 'UID必须为纯数字';
+    return;
+  }
+  const uid = Number(val);
+  tipDom.innerText = '正在预检该洛谷用户...';
+  tipDom.style.color = '#aaa';
+  try {
+    const res = await fetch(`https://api.jerryz.com.cn/luogu/user?uid=${uid}`);
+    const info = await res.json();
+    if (!info || !info.name) {
+      tipDom.style.color = '#ff7777';
+      tipDom.innerText = `UID ${uid} 在洛谷不存在`;
+    } else {
+      tipDom.style.color = '#88ffaa';
+      tipDom.innerText = `洛谷用户存在：${info.name}`;
+    }
+  }catch(e){
+    tipDom.innerText = '预检网络异常';
+    tipDom.style.color = '#ffaa77';
+  }
+});
+</script>
+</body>
+</html>

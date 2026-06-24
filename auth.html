@@ -180,6 +180,13 @@ footer {
       <button class="submit-btn" onclick="doReg()">注册并去验证邮箱</button>
     </div>
 
+    <div style="margin:24px 0 12px;text-align:center">
+  <div style="color:var(--text-secondary);margin-bottom:14px;">———— 第三方快捷登录 ————</div>
+  <button class="submit-btn" style="background:#222;margin:0;width:100%" onclick="loginWithGitHub()">
+    使用 GitHub 一键登录
+  </button>
+</div>
+
     <div class="back-home">
       <a href="index.html">← 返回题解首页</a>
     </div>
@@ -232,11 +239,29 @@ async function doReg(){
   const email = document.getElementById('regEmail').value.trim();
   const pwd = document.getElementById('regPwd').value.trim();
   if(!email||!pwd) return alert('邮箱和密码不能为空');
-  const {error} = await sbClient.auth.signUp({email,password:pwd});
+  const {error, data} = await sbClient.auth.signUp({
+    email,password:pwd,
+    options:{
+      emailRedirectTo: "bind-luogu.html" // 激活后强制跳转绑定洛谷页
+    }
+  });
   if(error){
     alert("注册失败："+error.message);
   }else{
-    alert('注册成功！请前往邮箱查收验证邮件激活账号，激活后再登录');
+    alert('注册成功！请前往邮箱查收验证邮件激活账号');
+  }
+}
+
+// GitHub 第三方登录
+async function loginWithGitHub(){
+  const { error } = await sbClient.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+      redirectTo: 'bind-luogu.html' // 授权成功自动跳回首页
+    }
+  })
+  if(error){
+    alert("GitHub登录失败："+error.message)
   }
 }
 </script>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+window.addEventListener('message', async e => {
+  if (!e.data?.uid) return;
+  const uid = e.data.uid;
+  try {
+    const res = await fetch(`https://www.luogu.com.cn/api/user/search?keyword=${uid}`);
+    const json = await res.json();
+    let found = null;
+    for(const u of json.users){
+      if(u.uid === Number(uid)){
+        found = u;
+        break;
+      }
+    }
+    e.source.postMessage({
+      ok: true,
+      exist: !!found,
+      name: found?.name || "",
+      homepage: `https://www.luogu.com.cn/user/${uid}`
+    }, "*");
+  } catch(err){
+    e.source.postMessage({ok:false, error:"fail"}, "*");
+  }
+});
+</script>
+</body>
+</html>

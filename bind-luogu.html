@@ -190,6 +190,16 @@ footer {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+
+let proxyWin = null;
+// 打开中转页面一次
+function initProxy(){
+  if(!proxyWin || proxyWin.closed){
+    proxyWin = window.open("proxy.html","_blank","width=10,height=10");
+  }
+}
+initProxy();
+
 const SUPABASE_URL = "https://lvvbvxjqpecjyumrtbgi.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dmJ2eGpxcGVjanl1bXJ0YmdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMjQ5MjYsImV4cCI6MjA5NzYwMDkyNn0.N90WEhvUllsBHekYbiMQIixhKUSFXu00P9gKI4ZRAoM";
 const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -245,70 +255,61 @@ async function bindLuogu(){
   tipDom.innerText = '正在校验洛谷账号是否存在...';
   tipDom.style.color = '#aaa';
 
-  try{
-    // 前端直接请求洛谷搜索接口，绕过云函数IP封禁问题
-    const res = await fetch(`https://www.luogu.com.cn/api/user/search?keyword=${luoguUid}`);
-    const json = await res.json();
-    let targetUser = null;
-    for(const u of json.users){
-      if(u.uid === luoguUid){
-        targetUser = u;
-        break;
-      }
+  initProxy();
+  let done = false;
+  const msgHandler = e => {
+    if(done) return;
+    if(!e.data.ok) {
+      tipDom.style.color = '#ff7777';
+      tipDom.innerText = '校验请求失败';
+      done = true;
+      window.removeEventListener('message', msgHandler);
+      return;
     }
-
-    if(!targetUser){
+    if(!e.data.exist){
       tipDom.style.color = '#ff7777';
       tipDom.innerText = `校验失败：洛谷 UID ${luoguUid} 不存在，请核对号码`;
+      done = true;
+      window.removeEventListener('message', msgHandler);
       return;
     }
+    const luoguName = e.data.name;
+    const luoguHome = e.data.homepage;
 
-    const luoguName = targetUser.name;
-    const luoguHome = `https://www.luogu.com.cn/user/${luoguUid}`;
-
-    // 检查UID是否已被本站绑定
-    const {data: existBind} = await sbClient
-      .from('user_profiles')
-      .select('id')
-      .eq('luogu_uid', luoguUid)
-      .single();
-
-    if(existBind){
-      tipDom.style.color = '#ff7777';
-      tipDom.innerText = '该洛谷UID已被其他账号绑定，不可重复绑定';
-      return;
-    }
-
-    // 写入绑定信息
-    const {error:insertErr} = await sbClient.from('user_profiles').insert({
-      id: currentUser.id,
-      luogu_uid: luoguUid,
-      luogu_name: luoguName,
-      luogu_homepage: luoguHome
-    });
-
-    if(insertErr){
-      console.error(insertErr);
-      tipDom.style.color = '#ff7777';
-      tipDom.innerText = '数据库异常，绑定失败';
-      return;
-    }
-
-    tipDom.style.color = '#7cf090';
-    tipDom.innerText = `绑定成功！洛谷昵称：${luoguName}`;
-    setTimeout(()=>{
-      location.href = 'index.html';
-    },1200);
-
-  }catch(err){
-    console.error(err);
-    tipDom.style.color = '#ff7777';
-    tipDom.innerText = '浏览器跨域限制，使用无痕/关闭广告拦截重试';
-  }
+    sbClient.from('user_profiles')
+    .select('id')
+    .eq('luogu_uid', luoguUid)
+    .single()
+    .then(({data: existBind})=>{
+      if(existBind){
+        tipDom.style.color = '#ff7777';
+        tipDom.innerText = '该洛谷UID已被其他账号绑定，不可重复绑定';
+      }else{
+        sbClient.from('user_profiles').insert({
+          id: currentUser.id,
+          luogu_uid: luoguUid,
+          luogu_name: luoguName,
+          luogu_homepage: luoguHome
+        }).then(({error:insertErr})=>{
+          if(insertErr){
+            tipDom.style.color = '#ff7777';
+            tipDom.innerText = '数据库异常，绑定失败';
+          }else{
+            tipDom.style.color = '#7cf090';
+            tipDom.innerText = `绑定成功！洛谷昵称：${luoguName}`;
+            setTimeout(()=>location.href='index.html',1200);
+          }
+        })
+      }
+      done = true;
+      window.removeEventListener('message', msgHandler);
+    })
+  };
+  window.addEventListener('message', msgHandler);
+  proxyWin.postMessage({uid:luoguUid},"*");
 }
 
-// 输入框离焦自动预检测洛谷UID是否存在
-document.getElementById('luoguUid').addEventListener('blur', async function(){
+document.getElementById('luoguUid').addEventListener('blur', function(){
   const val = this.value.trim();
   const tipDom = document.getElementById('checkTip');
   if (!/^\d+$/.test(val)) {
@@ -319,29 +320,22 @@ document.getElementById('luoguUid').addEventListener('blur', async function(){
   const uid = Number(val);
   tipDom.innerText = '正在预检该洛谷用户...';
   tipDom.style.color = '#aaa';
-  try {
-    const res = await fetch(`https://www.luogu.com.cn/api/user/search?keyword=${uid}`);
-    const json = await res.json();
-    let exist = false;
-    let uname = "";
-    for(const u of json.users){
-      if(u.uid === uid){
-        exist = true;
-        uname = u.name;
-        break;
-      }
-    }
-    if (!exist) {
+  initProxy();
+  let done = false;
+  const handler = e=>{
+    if(done) return;
+    done = true;
+    window.removeEventListener('message', handler);
+    if(!e.data.exist){
       tipDom.style.color = '#ff7777';
       tipDom.innerText = `UID ${uid} 在洛谷不存在`;
-    } else {
+    }else{
       tipDom.style.color = '#88ffaa';
-      tipDom.innerText = `洛谷用户存在：${uname}`;
+      tipDom.innerText = `洛谷用户存在：${e.data.name}`;
     }
-  }catch(e){
-    tipDom.innerText = '预检跨域受阻，点击绑定按钮完整校验';
-    tipDom.style.color = '#ffaa77';
   }
+  window.addEventListener('message', handler);
+  proxyWin.postMessage({uid:uid},"*");
 });
 </script>
 </body>

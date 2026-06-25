@@ -246,23 +246,27 @@ async function bindLuogu(){
   tipDom.style.color = '#aaa';
 
   try{
-    // 跨域中转查询洛谷用户信息
-    const res = await fetch(`https://api.jerryz.com.cn/luogu/user?uid=${luoguUid}`);
-    if (!res.ok) throw new Error('接口请求失败');
-    const userInfo = await res.json();
+    // 前端直接请求洛谷搜索接口，绕过云函数IP封禁问题
+    const res = await fetch(`https://www.luogu.com.cn/api/user/search?keyword=${luoguUid}`);
+    const json = await res.json();
+    let targetUser = null;
+    for(const u of json.users){
+      if(u.uid === luoguUid){
+        targetUser = u;
+        break;
+      }
+    }
 
-    // ========== 关键：判断洛谷用户是否真实存在 ==========
-    // 洛谷不存在用户时接口一般返回空/无name字段
-    if (!userInfo || !userInfo.name || userInfo.name === '' || userInfo.error) {
+    if(!targetUser){
       tipDom.style.color = '#ff7777';
       tipDom.innerText = `校验失败：洛谷 UID ${luoguUid} 不存在，请核对号码`;
       return;
     }
 
-    const luoguName = userInfo.name;
+    const luoguName = targetUser.name;
     const luoguHome = `https://www.luogu.com.cn/user/${luoguUid}`;
 
-    // 额外校验：该洛谷UID是否已经被本站其他账号绑定
+    // 检查UID是否已被本站绑定
     const {data: existBind} = await sbClient
       .from('user_profiles')
       .select('id')
@@ -275,7 +279,7 @@ async function bindLuogu(){
       return;
     }
 
-    // 写入绑定数据
+    // 写入绑定信息
     const {error:insertErr} = await sbClient.from('user_profiles').insert({
       id: currentUser.id,
       luogu_uid: luoguUid,
@@ -299,11 +303,7 @@ async function bindLuogu(){
   }catch(err){
     console.error(err);
     tipDom.style.color = '#ff7777';
-    if (err.message.includes('fetch')) {
-      tipDom.innerText = '网络异常，无法访问洛谷校验接口，请稍后重试';
-    } else {
-      tipDom.innerText = '校验出错，无法判断该UID是否有效';
-    }
+    tipDom.innerText = '浏览器跨域限制，使用无痕/关闭广告拦截重试';
   }
 }
 
@@ -320,17 +320,26 @@ document.getElementById('luoguUid').addEventListener('blur', async function(){
   tipDom.innerText = '正在预检该洛谷用户...';
   tipDom.style.color = '#aaa';
   try {
-    const res = await fetch(`https://api.jerryz.com.cn/luogu/user?uid=${uid}`);
-    const info = await res.json();
-    if (!info || !info.name) {
+    const res = await fetch(`https://www.luogu.com.cn/api/user/search?keyword=${uid}`);
+    const json = await res.json();
+    let exist = false;
+    let uname = "";
+    for(const u of json.users){
+      if(u.uid === uid){
+        exist = true;
+        uname = u.name;
+        break;
+      }
+    }
+    if (!exist) {
       tipDom.style.color = '#ff7777';
       tipDom.innerText = `UID ${uid} 在洛谷不存在`;
     } else {
       tipDom.style.color = '#88ffaa';
-      tipDom.innerText = `洛谷用户存在：${info.name}`;
+      tipDom.innerText = `洛谷用户存在：${uname}`;
     }
   }catch(e){
-    tipDom.innerText = '预检网络异常';
+    tipDom.innerText = '预检跨域受阻，点击绑定按钮完整校验';
     tipDom.style.color = '#ffaa77';
   }
 });

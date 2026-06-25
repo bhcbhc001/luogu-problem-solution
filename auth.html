@@ -252,12 +252,12 @@ async function doReg(){
   }
 }
 
-// GitHub 第三方登录
 async function loginWithGitHub(){
+  const baseUrl = window.location.origin + window.location.pathname.replace('auth.html','');
   const { error } = await sbClient.auth.signInWithOAuth({
     provider: 'github',
     options: {
-      redirectTo: 'bind-luogu.html' // 授权成功自动跳回首页
+      redirectTo: baseUrl + 'bind-luogu.html'
     }
   })
   if(error){
